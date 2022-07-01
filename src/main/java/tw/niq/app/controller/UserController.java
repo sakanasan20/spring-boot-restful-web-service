@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import tw.niq.app.dto.UserDto;
 import tw.niq.app.error.ErrorMessages;
+import tw.niq.app.exception.UserServiceException;
 import tw.niq.app.model.UserDetailsRequestModel;
 import tw.niq.app.model.UserRest;
 import tw.niq.app.service.UserService;
@@ -49,7 +50,7 @@ public class UserController {
 		UserRest returnValue = new UserRest();
 		
 		if (userDetails.getFirstName().isEmpty())
-			throw new Exception(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
+			throw new UserServiceException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
 		
 		UserDto userDto = new UserDto();
 		BeanUtils.copyProperties(userDetails, userDto);
