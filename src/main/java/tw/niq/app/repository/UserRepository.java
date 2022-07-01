@@ -1,4 +1,4 @@
-package tw.niq.app;
+package tw.niq.app.repository;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
