@@ -32,7 +32,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers(HttpMethod.POST, SecurityConstants.SIGN_UP_URL).permitAll()
 				.anyRequest().authenticated()
 			.and()
-			.addFilter(getAuthenticationFilter());
+			.addFilter(getAuthenticationFilter())
+			.addFilter(new AuthorizationFilter(authenticationManager()));
 	}
 	
 	public AuthenticationFilter getAuthenticationFilter() throws Exception {
