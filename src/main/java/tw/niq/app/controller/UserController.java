@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import tw.niq.app.dto.UserDto;
+import tw.niq.app.error.ErrorMessages;
 import tw.niq.app.model.UserDetailsRequestModel;
 import tw.niq.app.model.UserRest;
 import tw.niq.app.service.UserService;
@@ -43,16 +44,17 @@ public class UserController {
 	@PostMapping(
 			consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE }, 
 			produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
-	public UserRest createUser(@RequestBody UserDetailsRequestModel userDetails) {
+	public UserRest createUser(@RequestBody UserDetailsRequestModel userDetails) throws Exception {
 		
 		UserRest returnValue = new UserRest();
 		
-		UserDto userDto = new UserDto();
+		if (userDetails.getFirstName().isEmpty())
+			throw new Exception(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
 		
+		UserDto userDto = new UserDto();
 		BeanUtils.copyProperties(userDetails, userDto);
 		
 		UserDto createdUser = userService.createUser(userDto);
-		
 		BeanUtils.copyProperties(createdUser, returnValue);
 		
 		return returnValue;
