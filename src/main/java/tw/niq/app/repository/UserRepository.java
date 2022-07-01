@@ -9,5 +9,7 @@ import tw.niq.app.entity.UserEntity;
 public interface UserRepository extends CrudRepository<UserEntity, Long> {
 
 	UserEntity findUserByEmail(String email);
+
+	UserEntity findByUserId(String userId);
 	
 }
