@@ -3,9 +3,9 @@ package tw.niq.app.service;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
-import tw.niq.app.UserRepository;
 import tw.niq.app.dto.UserDto;
 import tw.niq.app.entity.UserEntity;
+import tw.niq.app.repository.UserRepository;
 import tw.niq.app.utils.UserUtils;
 
 @Service
