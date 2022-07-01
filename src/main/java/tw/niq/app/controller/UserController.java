@@ -14,8 +14,11 @@ import org.springframework.web.bind.annotation.RestController;
 import tw.niq.app.dto.UserDto;
 import tw.niq.app.error.ErrorMessages;
 import tw.niq.app.exception.UserServiceException;
+import tw.niq.app.model.OperationStatusModel;
 import tw.niq.app.model.UserDetailsRequestModel;
 import tw.niq.app.model.UserRest;
+import tw.niq.app.operation.RequestOperaionName;
+import tw.niq.app.operation.RequestOperationStatus;
 import tw.niq.app.service.UserService;
 
 @RestController
@@ -80,9 +83,19 @@ public class UserController {
 		return returnValue;
 	}
 	
-	@DeleteMapping
-	public String deleteUser() {
-		return "delete user was called";
+	@DeleteMapping(
+			path = "/{id}", 
+			produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
+	public OperationStatusModel deleteUser(@PathVariable String id) {
+		
+		OperationStatusModel returnValue = new OperationStatusModel();
+		
+		userService.deleteUser(id);
+		
+		returnValue.setOperationName(RequestOperaionName.DELETE.name());
+		returnValue.setOperationResult(RequestOperationStatus.SUCCESS.name());
+		
+		return returnValue ;
 	}
 	
 }
