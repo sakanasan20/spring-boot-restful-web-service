@@ -20,7 +20,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import tw.niq.app.SpringApplicationContext;
+import tw.niq.app.dto.UserDto;
 import tw.niq.app.model.UserLoginRequestModel;
+import tw.niq.app.service.UserService;
 
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
@@ -61,7 +64,11 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 				.signWith(SignatureAlgorithm.HS512, SecurityConstants.TOKEN_SECRET)
 				.compact();
 		
+		UserService userService = (UserService) SpringApplicationContext.getBean("userServiceImpl");
+		UserDto userDto = userService.getUser(userName);
+		
 		response.addHeader(SecurityConstants.HEADER_STRING, SecurityConstants.TOKEN_PREFIX + token);
+		response.addHeader("UserId", userDto.getUserId());
 	}
 	
 }

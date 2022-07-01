@@ -29,6 +29,17 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+		
+		UserEntity userEntity = userRepository.findUserByEmail(email);
+		
+		if (userEntity == null) 
+			throw new UsernameNotFoundException(email);
+		
+		return new User(userEntity.getEmail(), userEntity.getEncryptedPassword(), new ArrayList<>());
+	}
+	
+	@Override
 	public UserDto createUser(UserDto user) {
 		
 		if (userRepository.findUserByEmail(user.getEmail()) != null) 
@@ -41,7 +52,7 @@ public class UserServiceImpl implements UserService {
 		userEntity.setUserId(publicUserId);
 		userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(user.getPassword()));
 		
-		UserEntity storedUserDetails = userRepository .save(userEntity);
+		UserEntity storedUserDetails = userRepository.save(userEntity);
 		
 		UserDto returnValue = new UserDto();
 		BeanUtils.copyProperties(storedUserDetails, returnValue);
@@ -50,14 +61,17 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+	public UserDto getUser(String email) {
 		
 		UserEntity userEntity = userRepository.findUserByEmail(email);
 		
 		if (userEntity == null) 
 			throw new UsernameNotFoundException(email);
+				
+		UserDto returnValue = new UserDto();
+		BeanUtils.copyProperties(userEntity, returnValue);
 		
-		return new User(userEntity.getEmail(), userEntity.getEncryptedPassword(), new ArrayList<>());
+		return returnValue;
 	}
 
 }
