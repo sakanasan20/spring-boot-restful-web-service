@@ -1,9 +1,11 @@
 package tw.niq.app.controller;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,14 +18,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import tw.niq.app.dto.AddressDto;
 import tw.niq.app.dto.UserDto;
 import tw.niq.app.error.ErrorMessages;
 import tw.niq.app.exception.UserServiceException;
+import tw.niq.app.model.AddressRest;
 import tw.niq.app.model.OperationStatusModel;
 import tw.niq.app.model.UserDetailsRequestModel;
 import tw.niq.app.model.UserRest;
 import tw.niq.app.operation.RequestOperaionName;
 import tw.niq.app.operation.RequestOperationStatus;
+import tw.niq.app.service.AddressService;
 import tw.niq.app.service.UserService;
 
 @RestController
@@ -31,11 +36,13 @@ import tw.niq.app.service.UserService;
 public class UserController {
 	
 	private final UserService userService;
+	private final AddressService addressService;
 	
-	public UserController(UserService userService) {
+	public UserController(UserService userService, AddressService addressService) {
 		this.userService = userService;
+		this.addressService = addressService;
 	}
-	
+
 	@GetMapping(
 			path = "/{id}", 
 			produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
@@ -120,5 +127,23 @@ public class UserController {
 		
 		return returnValue;
 	}
+	
+	@GetMapping(
+			path = "/{id}/addresses", 
+			produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
+	public List<AddressRest> getUserAddresses(@PathVariable String id) {
+		
+		List<AddressDto> addressesDto = addressService.getAddresses(id);
 
+		List<AddressRest> returnValue = new ArrayList<>();
+		
+		if (addressesDto != null && !addressesDto.isEmpty()) {
+			ModelMapper modelMpper = new ModelMapper();
+			Type listType = new TypeToken<List<AddressRest>>() {}.getType();
+			returnValue = modelMpper.map(addressesDto, listType);
+		}
+
+		return returnValue;
+	}
+	
 }
