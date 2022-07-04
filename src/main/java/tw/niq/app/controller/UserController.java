@@ -3,6 +3,7 @@ package tw.niq.app.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -59,11 +60,11 @@ public class UserController {
 		if (userDetails.getFirstName().isEmpty())
 			throw new UserServiceException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
 		
-		UserDto userDto = new UserDto();
-		BeanUtils.copyProperties(userDetails, userDto);
+		ModelMapper modelMpper = new ModelMapper();
+		UserDto userDto = modelMpper.map(userDetails, UserDto.class);
 		
 		UserDto createdUser = userService.createUser(userDto);
-		BeanUtils.copyProperties(createdUser, returnValue);
+		returnValue = modelMpper.map(createdUser, UserRest.class);
 		
 		return returnValue;
 	}
