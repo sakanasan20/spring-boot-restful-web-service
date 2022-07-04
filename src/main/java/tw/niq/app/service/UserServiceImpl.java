@@ -8,7 +8,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -20,6 +19,7 @@ import tw.niq.app.entity.UserEntity;
 import tw.niq.app.error.ErrorMessages;
 import tw.niq.app.exception.UserServiceException;
 import tw.niq.app.repository.UserRepository;
+import tw.niq.app.security.UserPrincipal;
 import tw.niq.app.utils.AddressUtils;
 import tw.niq.app.utils.UserUtils;
 
@@ -47,7 +47,7 @@ public class UserServiceImpl implements UserService {
 		if (userEntity == null) 
 			throw new UsernameNotFoundException(email);
 		
-		return new User(userEntity.getEmail(), userEntity.getEncryptedPassword(), new ArrayList<>());
+		return new UserPrincipal(userEntity);
 	}
 	
 	@Override
