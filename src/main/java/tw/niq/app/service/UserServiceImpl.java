@@ -3,6 +3,7 @@ package tw.niq.app.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -13,11 +14,13 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import tw.niq.app.dto.AddressDto;
 import tw.niq.app.dto.UserDto;
 import tw.niq.app.entity.UserEntity;
 import tw.niq.app.error.ErrorMessages;
 import tw.niq.app.exception.UserServiceException;
 import tw.niq.app.repository.UserRepository;
+import tw.niq.app.utils.AddressUtils;
 import tw.niq.app.utils.UserUtils;
 
 @Service
@@ -25,12 +28,14 @@ public class UserServiceImpl implements UserService {
 	
 	private final UserRepository userRepository;
 	private final UserUtils userUtils;
+	private final AddressUtils addressUtils;
 	private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-	public UserServiceImpl(UserRepository userRepository, UserUtils userUtils,
+	public UserServiceImpl(UserRepository userRepository, UserUtils userUtils, AddressUtils addressUtils, 
 			BCryptPasswordEncoder bCryptPasswordEncoder) {
 		this.userRepository = userRepository;
 		this.userUtils = userUtils;
+		this.addressUtils = addressUtils;
 		this.bCryptPasswordEncoder = bCryptPasswordEncoder;
 	}
 
@@ -51,8 +56,14 @@ public class UserServiceImpl implements UserService {
 		if (userRepository.findUserByEmail(user.getEmail()) != null) 
 			throw new RuntimeException("Record alread exist");
 		
-		UserEntity userEntity = new UserEntity();
-		BeanUtils.copyProperties(user, userEntity);
+		ModelMapper modelMpper = new ModelMapper();
+		UserEntity userEntity = modelMpper.map(user, UserEntity.class);
+		
+		for (int i = 0; i < user.getAddresses().size(); i++) {
+			AddressDto address = user.getAddresses().get(i);
+			address.setUserDetails(user);
+			address.setAddressId(addressUtils.generateAddressId(30));
+		}
 		
 		String publicUserId = userUtils.generateUserId(30);
 		userEntity.setUserId(publicUserId);
@@ -60,8 +71,7 @@ public class UserServiceImpl implements UserService {
 		
 		UserEntity storedUserDetails = userRepository.save(userEntity);
 		
-		UserDto returnValue = new UserDto();
-		BeanUtils.copyProperties(storedUserDetails, returnValue);
+		UserDto returnValue = modelMpper.map(storedUserDetails, UserDto.class);
 		
 		return returnValue;
 	}
