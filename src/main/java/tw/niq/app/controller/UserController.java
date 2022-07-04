@@ -2,11 +2,16 @@ package tw.niq.app.controller;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.BeanUtils;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -131,7 +136,7 @@ public class UserController {
 	@GetMapping(
 			path = "/{id}/addresses", 
 			produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
-	public List<AddressRest> getUserAddresses(@PathVariable String id) {
+	public CollectionModel<AddressRest> getUserAddresses(@PathVariable String id) {
 		
 		List<AddressDto> addressesDto = addressService.getAddresses(id);
 
@@ -141,23 +146,36 @@ public class UserController {
 			ModelMapper modelMpper = new ModelMapper();
 			Type listType = new TypeToken<List<AddressRest>>() {}.getType();
 			returnValue = modelMpper.map(addressesDto, listType);
+			
+			for (AddressRest addressRest : returnValue) {
+				Link selfLink = 
+						WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).getUserAddress(id, addressRest.getAddressId())).withSelfRel();
+				
+				addressRest.add(selfLink);
+			}
 		}
+		
+		Link userLink = WebMvcLinkBuilder.linkTo(UserController.class).slash(id).withRel("user");
+		Link selfLink = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).getUserAddresses(id)).withSelfRel();
 
-		return returnValue;
+		return CollectionModel.of(returnValue, userLink, selfLink);
 	}
 	
 	@GetMapping(
-			path = "/{id}/addresses/{addressId}", 
+			path = "/{userId}/addresses/{addressId}", 
 			produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
-	public AddressRest getUserAddress(@PathVariable String id, @PathVariable String addressId) {
+	public EntityModel<AddressRest> getUserAddress(@PathVariable String userId, @PathVariable String addressId) {
 		
 		AddressDto addressesDto = addressService.getAddress(addressId);
 		
 		ModelMapper modelMpper = new ModelMapper();
-
 		AddressRest returnValue = modelMpper.map(addressesDto, AddressRest.class);
-
-		return returnValue;
+		
+		Link userLink = WebMvcLinkBuilder.linkTo(UserController.class).slash(userId).withRel("user");
+		Link userAddressesLink = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).getUserAddresses(userId)).withRel("addresses");
+		Link selfLink = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).getUserAddress(userId, addressId)).withSelfRel();
+		
+		return EntityModel.of(returnValue, Arrays.asList(userLink, userAddressesLink, selfLink));
 	}
 	
 }
