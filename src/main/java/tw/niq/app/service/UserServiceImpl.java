@@ -55,15 +55,16 @@ public class UserServiceImpl implements UserService {
 		
 		if (userRepository.findUserByEmail(user.getEmail()) != null) 
 			throw new RuntimeException("Record alread exist");
-		
-		ModelMapper modelMpper = new ModelMapper();
-		UserEntity userEntity = modelMpper.map(user, UserEntity.class);
-		
+
 		for (int i = 0; i < user.getAddresses().size(); i++) {
 			AddressDto address = user.getAddresses().get(i);
 			address.setUserDetails(user);
 			address.setAddressId(addressUtils.generateAddressId(30));
+			user.getAddresses().set(i, address);
 		}
+		
+		ModelMapper modelMpper = new ModelMapper();
+		UserEntity userEntity = modelMpper.map(user, UserEntity.class);
 		
 		String publicUserId = userUtils.generateUserId(30);
 		userEntity.setUserId(publicUserId);
