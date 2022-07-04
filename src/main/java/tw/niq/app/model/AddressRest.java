@@ -1,6 +1,8 @@
 package tw.niq.app.model;
 
-public class AddressRest {
+import org.springframework.hateoas.RepresentationModel;
+
+public class AddressRest extends RepresentationModel<AddressRest> {
 	
 	private String addressId;
 
