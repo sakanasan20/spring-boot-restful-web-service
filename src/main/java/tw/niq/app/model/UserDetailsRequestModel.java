@@ -12,7 +12,7 @@ public class UserDetailsRequestModel {
 	
 	private String password;
 	
-	private List<AddressRequestModel> address;
+	private List<AddressRequestModel> addresses;
 
 	public String getFirstName() {
 		return firstName;
@@ -46,12 +46,12 @@ public class UserDetailsRequestModel {
 		this.password = password;
 	}
 
-	public List<AddressRequestModel> getAddress() {
-		return address;
+	public List<AddressRequestModel> getAddresses() {
+		return addresses;
 	}
 
-	public void setAddress(List<AddressRequestModel> address) {
-		this.address = address;
+	public void setAddresses(List<AddressRequestModel> addresses) {
+		this.addresses = addresses;
 	}
 
 }
